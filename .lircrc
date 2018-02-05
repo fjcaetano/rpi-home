@@ -1,0 +1,23 @@
+begin
+  button = KEY_RED
+  prog = lamps
+  config = RED
+end
+
+begin
+  button = KEY_GREEN
+  prog = lamps
+  config = GREEN
+end
+
+begin
+  button = KEY_YELLOW
+  prog = lamps
+  config = YELLOW
+end
+
+begin
+  button = KEY_BLUE
+  prog = lamps
+  config = BLUE
+end
