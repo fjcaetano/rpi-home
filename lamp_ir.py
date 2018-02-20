@@ -7,8 +7,8 @@ import sys
 
 PINS = {
 	'RED': 2,
-	'GREEN': 3,
-	'YELLOW': 4,
+	'GREEN': 4,
+	'YELLOW': 3,
 	'BLUE': 17
 }
 
