@@ -27,8 +27,8 @@ while True:
     last_time = time.time()
     pushover.send_message("Campainha tocou!", title="Home")
 
-    # gpio.output(OUT, True)
-    # time.sleep(0.5)
-    # gpio.output(OUT, False)
+    gpio.output(OUT, True)
+    time.sleep(0.5)
+    gpio.output(OUT, False)
 
 gpio.cleanup()
