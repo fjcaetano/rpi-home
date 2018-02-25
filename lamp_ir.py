@@ -6,9 +6,9 @@ import RPi.GPIO as gpio
 import sys
 
 PINS = {
-	'RED': 2, // TV
-	'GREEN': 3, // Mesa
-	'YELLOW': 4 // Porta
+	'RED': 2, # TV
+	'GREEN': 3, # Mesa
+	'YELLOW': 4 # Porta
 }
 
 gpio.setwarnings(False)
