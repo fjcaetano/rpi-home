@@ -23,12 +23,14 @@ while True:
             (gpio.input(IN) == 1):
         continue
 
-    print "\aDING DONG - " + str(datetime.now())
+    now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    print "\aDING DONG - %(now)s" % locals()
     last_time = time.time()
-    pushover.send_message("Campainha tocou!", title="Home")
 
     gpio.output(OUT, False)
     time.sleep(0.5)
     gpio.output(OUT, True)
+
+    pushover.send_message("Campainha tocou! (%(now)s)" % locals(), title="Home")
 
 gpio.cleanup()
