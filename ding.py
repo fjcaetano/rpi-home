@@ -1,8 +1,10 @@
 #! /usr/bin/python
 
+import os
 import time
 import RPi.GPIO as gpio
-from datetime import datetime
+from pushover import Client
+from datetime import datetime\
 
 IN = 26
 OUT = 17
@@ -12,6 +14,7 @@ gpio.setwarnings(False)
 gpio.setup(IN, gpio.IN, pull_up_down=gpio.PUD_UP)
 gpio.setup(OUT, gpio.OUT)
 
+pushover = Client(os.environ['PUSHOVER_USER'], api_token=os.environ['PUSHOVER_TOKEN'])
 last_time = time.time()
 
 while True:
@@ -22,6 +25,7 @@ while True:
 
     print "\aDING DONG - " + str(datetime.now())
     last_time = time.time()
+    pushover.send_message("Campainha tocou!", title="Home")
 
     # gpio.output(OUT, True)
     # time.sleep(0.5)
