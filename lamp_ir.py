@@ -6,10 +6,9 @@ import RPi.GPIO as gpio
 import sys
 
 PINS = {
-	'RED': 2,
-	'GREEN': 4,
-	'YELLOW': 3,
-	'BLUE': 17
+	'RED': 2, // TV
+	'GREEN': 3, // Mesa
+	'YELLOW': 4 // Porta
 }
 
 gpio.setwarnings(False)
@@ -28,3 +27,4 @@ while True:
 	print "Turning " + pin + " lamp " + ("on" if newValue else "off")
 
 lirc.deinit()
+gpio.cleanup()
