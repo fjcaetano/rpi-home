@@ -8,6 +8,7 @@ Small RPi project to control lamps with HomeKit and infrared
 - [Homebridge GPIO WPi2](https://github.com/rsg98/homebridge-gpio-wpi2)
 - [lirc](http://www.lirc.org/)
 - [Python lirc](https://github.com/tompreston/python-lirc)
+- [Python Pushover](https://github.com/Thibauth/python-pushover)
 
 ## Usage
 

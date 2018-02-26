@@ -19,6 +19,8 @@ gpio.setup(OUT, gpio.OUT)
 telegram = Bot(os.environ['TELEGRAM_TOKEN'])
 last_time = time.time()
 
+print "Starting - " + str(datetime.now())
+
 while True:
     if (gpio.wait_for_edge(IN, gpio.FALLING, timeout=5000) is None) or \
             (time.time() - last_time < 1) or \
@@ -30,7 +32,7 @@ while True:
         continue
 
     now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    print "\aDING DONG - %(now)s" % locals()
+    print "DING DONG - %(now)s" % locals()
     last_time = time.time()
 
     gpio.output(OUT, False)
