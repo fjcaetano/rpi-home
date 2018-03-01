@@ -3,18 +3,20 @@
 import os
 import time
 import RPi.GPIO as gpio
-from pushover import Client
-from datetime import datetime\
+from datetime import datetime
+from emoji import emojize
+from telegram import Bot, ParseMode
 
 IN = 26
 OUT = 17
+CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 
 gpio.setmode(gpio.BCM)
 gpio.setwarnings(False)
 gpio.setup(IN, gpio.IN, pull_up_down=gpio.PUD_UP)
 gpio.setup(OUT, gpio.OUT)
 
-pushover = Client(os.environ['PUSHOVER_USER'], api_token=os.environ['PUSHOVER_TOKEN'])
+telegram = Bot(os.environ['TELEGRAM_TOKEN'])
 last_time = time.time()
 
 while True:
@@ -31,6 +33,13 @@ while True:
     time.sleep(0.5)
     gpio.output(OUT, True)
 
-    pushover.send_message("Campainha tocou! (%(now)s)" % locals(), title="Home")
+    telegram.send_message(
+        chat_id=CHAT_ID,
+        text='%(emoji)s _ding dong_ (%(now)s)' % {
+            'emoji': emojize(':bell:', use_aliases=True),
+            'now': now
+        },
+        parse_mode=ParseMode.MARKDOWN
+    )
 
 gpio.cleanup()
