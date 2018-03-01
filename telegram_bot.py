@@ -5,9 +5,9 @@ import os
 import logging
 from decorator import decorator, decorate
 from emoji import emojize
-from subprocess import call
 from telegram import ParseMode
 from telegram.ext import CommandHandler, Updater, ConversationHandler
+from subprocess import call, check_output
 
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -36,7 +36,11 @@ def service(map_fn):
         if len(unknown_services) > 0:
             update.message.reply_text(
                 'Uknown service%(s)s: ' % {'s': 's' if len(unknown_services) > 1 else ''} + 
-                ', '.join(unknown_services)
+                ', '.join(map(
+                    lambda service: '`%(service)s`' % locals(),
+                    unknown_services
+                )),
+                parse_mode=ParseMode.MARKDOWN
             )
             return
 
@@ -66,6 +70,29 @@ def service_stop(service):
     call(['sudo', 'systemctl', 'stop', service])
     return service_status(service)
 
+@auth
+def service_log(bot, update, args, *vargs, **kwargs):
+    try:
+        service = args[0]
+    except IndexError:
+        update.message.reply_text('No service provided')
+        return
+
+    try:
+        log_length = args[1]
+    except IndexError:
+        log_length = 5
+
+    if service not in SERVICES:
+        update.message.reply_text(
+            'Uknown service: `%(service)s`' % locals(), 
+            parse_mode=ParseMode.MARKDOWN
+        )
+        return
+
+    log = check_output(['tail', '-n', str(log_length), '/var/log/%(service)s.log' % locals()])
+    update.message.reply_text('```%(log)s```' % locals(), parse_mode=ParseMode.MARKDOWN)
+
 def main() :
     status_handler = CommandHandler('status', service(service_status), pass_args=True)
     updater.dispatcher.add_handler(status_handler)
@@ -75,6 +102,9 @@ def main() :
 
     stop_service_handler = CommandHandler('stop', service_stop, pass_args=True)
     updater.dispatcher.add_handler(stop_service_handler)
+
+    log_service_handler = CommandHandler('log', service_log, pass_args=True)
+    updater.dispatcher.add_handler(log_service_handler)
 
     updater.start_polling()
     updater.idle()
