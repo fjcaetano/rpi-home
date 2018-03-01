@@ -29,7 +29,7 @@ def auth(f, bot, update, *args, **kwargs):
             parse_mode=ParseMode.MARKDOWN
         )
 
-def service(f):
+def service(map_fn):
     @auth
     def wrapper(bot, update, args, *vargs, **kwargs):
         unknown_services = set(args) - set(SERVICES)
@@ -40,45 +40,43 @@ def service(f):
             )
             return
 
-        f(bot, update, args, *vargs[1:], **kwargs)
+        results = map(map_fn, args or SERVICES)
+        update.message.reply_text('\n'.join(results), parse_mode=ParseMode.MARKDOWN)
     
     return wrapper
 
-@service
-def status(bot, update, args):
-    def map_results(service):
-        running = call(['echo', service]) == 0
-        return u'%(emoji)s *%(service)s* - %(status)s' % {
-            'emoji': emojize(
-                ':white_check_mark:' if running else ':no_entry_sign:',
-                use_aliases=True
-            ),
-            'service': service,
-            'status': 'Running' if running else 'Not running'
-        }
-
-    results = map(map_results, args or SERVICES)
-    update.message.reply_text('\n'.join(results), parse_mode=ParseMode.MARKDOWN)
+def service_status(service):
+    running = call(['sudo', 'systemctl', 'status', service]) == 0
+    return u'%(emoji)s *%(service)s* - %(status)s' % {
+        'emoji': emojize(
+            ':white_check_mark:' if running else ':no_entry_sign:',
+            use_aliases=True
+        ),
+        'service': service,
+        'status': 'Running' if running else 'Not running'
+    }
 
 @service
-def start_service(bot, update, args):
-    def map_results(service):
-        call(['sudo', 'systemctl', 'start', service])
-        return status.map_results(service)
+def service_start(service):
+    call(['sudo', 'systemctl', 'start', service])
+    return service_status(service)
 
-    results = map(map_results, args or SERVICES)
-    update.message.reply_text('\n'.join(results), parse_mode=ParseMode.MARKDOWN)
-
+@service
+def service_stop(service):
+    call(['sudo', 'systemctl', 'stop', service])
+    return service_status(service)
 
 def main() :
-    status_handler = CommandHandler('status', status, pass_args=True)
+    status_handler = CommandHandler('status', service(service_status), pass_args=True)
     updater.dispatcher.add_handler(status_handler)
 
-    start_service_handler = CommandHandler('start_service', status, pass_args=True)
+    start_service_handler = CommandHandler('start', service_start, pass_args=True)
     updater.dispatcher.add_handler(start_service_handler)
+
+    stop_service_handler = CommandHandler('stop', service_stop, pass_args=True)
+    updater.dispatcher.add_handler(stop_service_handler)
 
     updater.start_polling()
     updater.idle()
 
-# status(None, None, [])
 main()
