@@ -25,6 +25,10 @@ while True:
             (gpio.input(IN) == 1):
         continue
 
+    # If bounces back too quickly, treat as false positive
+    if gpio.wait_for_edge(IN, gpio.RISING, timeout=50) is not None:
+        continue
+
     now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     print "\aDING DONG - %(now)s" % locals()
     last_time = time.time()
