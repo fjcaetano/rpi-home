@@ -9,12 +9,12 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, Updater, ConversationHandler
 from subprocess import call, check_output
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 updater = Updater(os.environ['TELEGRAM_TOKEN'])
 
-SERVICES = ['homebridge', 'lirc', 'lamp_ir', 'dingdong']
+SERVICES = ['homebridge', 'lirc', 'lamp_ir', 'dingdong', 'bot']
 CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
 
 @decorator
@@ -73,13 +73,13 @@ def service_stop(service):
 @auth
 def service_log(bot, update, args, *vargs, **kwargs):
     try:
-        service = args[0]
+       service = args[0]
     except IndexError:
-        update.message.reply_text('No service provided')
-        return
+       update.message.reply_text('No service provided')
+       return
 
     try:
-        log_length = args[1]
+       log_length = args[1]
     except IndexError:
         log_length = 5
 
@@ -105,7 +105,7 @@ def main() :
 
     log_service_handler = CommandHandler('log', service_log, pass_args=True)
     updater.dispatcher.add_handler(log_service_handler)
-
+    
     updater.start_polling()
     updater.idle()
 

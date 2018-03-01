@@ -36,3 +36,9 @@ if updated_recently 'dingdong.py'; then
   sudo systemctl stop dingdong
   sudo systemctl start dingdong
 fi
+
+if updated_recently 'telegram_bot.py'; then
+  echo "Restarting bot"
+  sudo systemctl stop bot
+  sudo systemctl start bot
+fi
