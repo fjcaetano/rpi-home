@@ -41,9 +41,8 @@ while True:
 
     telegram.send_message(
         chat_id=CHAT_ID,
-        text='%(emoji)s _ding dong_ (%(now)s)' % {
-            'emoji': emojize(':bell:', use_aliases=True),
-            'now': now
+        text='%(emoji)s _ding dong_' % {
+            'emoji': emojize(':bell:', use_aliases=True)
         },
         parse_mode=ParseMode.MARKDOWN
     )
