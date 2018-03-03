@@ -9,17 +9,17 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, Updater, ConversationHandler
 from subprocess import call, check_output
 
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 updater = Updater(os.environ['TELEGRAM_TOKEN'])
 
 SERVICES = ['homebridge', 'lirc', 'lamp_ir', 'dingdong', 'bot']
-CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
+CHAT_IDS = map(int, os.environ['TELEGRAM_CHAT_IDS'].split(','))
 
 @decorator
 def auth(f, bot, update, *args, **kwargs):
-    if update.message.chat_id == int(CHAT_ID):
+    if update.message.chat_id in CHAT_IDS:
         f(bot, update, *args, **kwargs)
     else:
         update.message.reply_text(
@@ -93,7 +93,7 @@ def service_log(bot, update, args, *vargs, **kwargs):
     log = check_output(['tail', '-n', str(log_length), '/var/log/%(service)s.log' % locals()])
     update.message.reply_text('```%(log)s```' % locals(), parse_mode=ParseMode.MARKDOWN)
 
-def main() :
+def main():
     status_handler = CommandHandler('status', service(service_status), pass_args=True)
     updater.dispatcher.add_handler(status_handler)
 

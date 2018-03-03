@@ -9,7 +9,7 @@ from telegram import Bot, ParseMode
 
 IN = 26
 OUT = 17
-CHAT_ID = os.environ['TELEGRAM_CHAT_ID']
+CHAT_IDS = map(int, os.environ['TELEGRAM_CHAT_IDS'].split(','))
 
 gpio.setmode(gpio.BCM)
 gpio.setwarnings(False)
@@ -39,12 +39,13 @@ while True:
     time.sleep(0.5)
     gpio.output(OUT, True)
 
-    telegram.send_message(
-        chat_id=CHAT_ID,
-        text='%(emoji)s _ding dong_' % {
-            'emoji': emojize(':bell:', use_aliases=True)
-        },
-        parse_mode=ParseMode.MARKDOWN
-    )
+    for chat_id in CHAT_IDS:
+        telegram.send_message(
+            chat_id=chat_id,
+            text='%(emoji)s _ding dong_' % {
+                'emoji': emojize(':bell:', use_aliases=True)
+            },
+            parse_mode=ParseMode.MARKDOWN
+        )
 
 gpio.cleanup()
