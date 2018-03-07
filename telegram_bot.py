@@ -9,7 +9,7 @@ from telegram import ParseMode
 from telegram.ext import CommandHandler, Updater, ConversationHandler
 from subprocess import call, check_output
 
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 updater = Updater(os.environ['TELEGRAM_TOKEN'])
@@ -50,7 +50,7 @@ def service(map_fn):
     return wrapper
 
 def service_status(service):
-    running = call(['sudo', 'systemctl', 'status', service]) == 0
+    running = call(['/etc/init.d/%(service)s' % locals(), 'status']) == 0
     return u'%(emoji)s *%(service)s* - %(status)s' % {
         'emoji': emojize(
             ':white_check_mark:' if running else ':no_entry_sign:',

@@ -1,11 +1,15 @@
 #! /usr/bin/python
 
+import logging
 import os
 import time
 import RPi.GPIO as gpio
 from datetime import datetime
 from emoji import emojize
 from telegram import Bot, ParseMode
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 IN = 26
 OUT = 17
@@ -19,7 +23,7 @@ gpio.setup(OUT, gpio.OUT)
 telegram = Bot(os.environ['TELEGRAM_TOKEN'])
 last_time = time.time()
 
-print "Starting - " + str(datetime.now())
+logging.info("Starting - " + str(datetime.now()))
 
 while True:
     if (gpio.wait_for_edge(IN, gpio.FALLING, timeout=5000) is None) or \
@@ -28,11 +32,12 @@ while True:
         continue
 
     # If bounces back too quickly, treat as false positive
-    if gpio.wait_for_edge(IN, gpio.RISING, timeout=50) is not None:
+    if gpio.wait_for_edge(IN, gpio.RISING, timeout=75) is not None:
+        logging.debug('False positive')
         continue
 
     now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    print "DING DONG - %(now)s" % locals()
+    logging.info("DING DONG - %(now)s" % locals())
     last_time = time.time()
 
     gpio.output(OUT, False)
@@ -40,6 +45,7 @@ while True:
     gpio.output(OUT, True)
 
     for chat_id in CHAT_IDS:
+        logging.debug("Sending message")
         telegram.send_message(
             chat_id=chat_id,
             text='%(emoji)s _ding dong_' % {
