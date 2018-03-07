@@ -19,6 +19,7 @@ gpio.setmode(gpio.BCM)
 gpio.setwarnings(False)
 gpio.setup(IN, gpio.IN, pull_up_down=gpio.PUD_UP)
 gpio.setup(OUT, gpio.OUT)
+gpio.output(OUT, True)
 
 telegram = Bot(os.environ['TELEGRAM_TOKEN'])
 last_time = time.time()
