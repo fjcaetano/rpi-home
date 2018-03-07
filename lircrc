@@ -15,9 +15,3 @@ begin
   prog = lamps
   config = YELLOW
 end
-
-begin
-  button = KEY_BLUE
-  prog = lamps
-  config = BLUE
-end

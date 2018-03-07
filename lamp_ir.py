@@ -19,7 +19,11 @@ lirc.init("lamps")
 lirc.load_config_file("lircrc")
 
 while True:
-	pin = lirc.nextcode()[0]
+	next_code = lirc.nextcode()
+	if len(next_code) == 0:
+		continue
+
+	pin = next_code[0]
 
 	newValue = not gpio.input(PINS[pin])
 	gpio.output(PINS[pin], newValue)
