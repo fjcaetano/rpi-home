@@ -49,6 +49,32 @@ def service(map_fn):
     
     return wrapper
 
+def log(f):
+    @auth
+    def wrapper(bot, update, args, *vargs, **kwargs):
+        try:
+            service = args[0]
+        except IndexError:
+            update.message.reply_text('No service provided')
+            return
+
+        try:
+            log_length = args[1]
+        except IndexError:
+            log_length = 5
+
+        if service not in SERVICES:
+            update.message.reply_text(
+                'Uknown service: `%(service)s`' % locals(), 
+                parse_mode=ParseMode.MARKDOWN
+            )
+            return
+
+        log = f(service, log_length)
+        update.message.reply_text('```%(log)s```' % locals(), parse_mode=ParseMode.MARKDOWN)
+    
+    return wrapper
+
 def service_status(service):
     running = call(['/etc/init.d/%(service)s' % locals(), 'status']) == 0
     return u'%(emoji)s *%(service)s* - %(status)s' % {
@@ -70,28 +96,16 @@ def service_stop(service):
     call(['sudo', 'systemctl', 'stop', service])
     return service_status(service)
 
-@auth
-def service_log(bot, update, args, *vargs, **kwargs):
-    try:
-       service = args[0]
-    except IndexError:
-       update.message.reply_text('No service provided')
-       return
+@log
+def service_log(service, log_length):
+    return check_output(['tail', '-n', str(log_length), '/var/log/%(service)s.log' % locals()])
 
-    try:
-       log_length = args[1]
-    except IndexError:
-        log_length = 5
+@log
+def service_logerr(service, log_length):
+    return check_output(['tail', '-n', str(log_length), '/var/log/%(service)s.err' % locals()])
 
-    if service not in SERVICES:
-        update.message.reply_text(
-            'Uknown service: `%(service)s`' % locals(), 
-            parse_mode=ParseMode.MARKDOWN
-        )
-        return
-
-    log = check_output(['tail', '-n', str(log_length), '/var/log/%(service)s.log' % locals()])
-    update.message.reply_text('```%(log)s```' % locals(), parse_mode=ParseMode.MARKDOWN)
+def error_handler(bot, update, error):
+    logging.error(error)
 
 def main():
     status_handler = CommandHandler('status', service(service_status), pass_args=True)
@@ -105,7 +119,11 @@ def main():
 
     log_service_handler = CommandHandler('log', service_log, pass_args=True)
     updater.dispatcher.add_handler(log_service_handler)
+
+    logerr_service_handler = CommandHandler('logerr', service_logerr, pass_args=True)
+    updater.dispatcher.add_handler(logerr_service_handler)
     
+    updater.dispatcher.add_error_handler(error_handler)
     updater.start_polling()
     updater.idle()
 
