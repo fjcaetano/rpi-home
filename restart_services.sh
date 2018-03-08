@@ -1,4 +1,6 @@
 #! /bin/sh
+# This is meant to be run as a post-receive hook in the git server configured in the RPi.
+# Project changes are deployed by pushing the git repo onto the RPi remote.
 
 updated_recently() {
   NOW=$(date +'%Y-%m-%d %H:%M')
