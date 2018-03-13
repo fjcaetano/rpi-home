@@ -14,6 +14,7 @@ logging.basicConfig(level=logging.INFO,
 IN = 26
 OUT = 17
 CHAT_IDS = map(int, os.environ['TELEGRAM_CHAT_IDS'].split(','))
+TIME_RANGE = range(9, 22)
 
 gpio.setmode(gpio.BCM)
 gpio.setwarnings(False)
@@ -33,7 +34,7 @@ while True:
         continue
 
     # If bounces back too quickly, treat as false positive
-    if gpio.wait_for_edge(IN, gpio.RISING, timeout=75) is not None:
+    if gpio.wait_for_edge(IN, gpio.RISING, timeout=100) is not None:
         logging.debug('False positive')
         continue
 
@@ -41,9 +42,11 @@ while True:
     logging.info("DING DONG - %(now)s" % locals())
     last_time = time.time()
 
-    gpio.output(OUT, False)
-    time.sleep(0.5)
-    gpio.output(OUT, True)
+    if datetime.now().hour in TIME_RANGE:
+        # Only rings bell if hour between 9~22
+        gpio.output(OUT, False)
+        time.sleep(0.5)
+        gpio.output(OUT, True)
 
     for chat_id in CHAT_IDS:
         logging.debug("Sending message")
