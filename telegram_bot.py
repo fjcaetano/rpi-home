@@ -124,7 +124,7 @@ def main():
     updater.dispatcher.add_handler(logerr_service_handler)
     
     updater.dispatcher.add_error_handler(error_handler)
-    updater.start_polling()
+    updater.start_polling(bootstrap_retries=-1)
     updater.idle()
 
 main()
